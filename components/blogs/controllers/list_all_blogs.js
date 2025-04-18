@@ -6,17 +6,19 @@ const listAllBlogs = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
     const sortOrder = req.query.sort === "asc" ? 1 : -1;
-    
+
     const search = req.query.search || "";
-    const status = req.query.status || ""; 
-    const category = req.query.category || ""; 
-    const tag = req.query.tag || ""; 
-   
+    const status = req.query.status || "";
+    const category = req.query.category || "";
+    const tag = req.query.tag || "";
+    const isFeatured = req.query.is_featured;
+
     const searchQuery = {
-      title: { $regex: search, $options: "i" }, 
-      ...(status && { status: status }), 
-      ...(category && { categories: category }), 
-      ...(tag && { tags: tag }) 
+      title: { $regex: search, $options: "i" },
+      ...(status && { status: status }),
+      ...(category && { categories: category }),
+      ...(tag && { tags: tag }),
+      ...(isFeatured !== undefined && { is_featured: isFeatured === "true" }),
     };
 
     const blogs = await Blog.find(searchQuery)

@@ -27,11 +27,15 @@ const teamSchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
+    is_board_member: {
+      type: Boolean,
+      default: false,
+    },
     status: {
       type: String,
       enum: ["pending", "approved"],
       default: "pending",
-    },    
+    },
   },
   {
     timestamps: true,
