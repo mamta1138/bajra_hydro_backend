@@ -12,7 +12,12 @@ const listAllCVs = async (req, res) => {
     const status = req.query.status || "";
 
     const searchQuery = {
-      ...(search && { fullname: { $regex: search, $options: "i" } }),
+      ...(search && {
+        $or: [
+          { fullname: { $regex: search, $options: "i" } },
+          { position: { $regex: search, $options: "i" } },
+        ],
+      }),
       ...(status && { status })
     };
 
