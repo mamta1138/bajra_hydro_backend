@@ -11,7 +11,12 @@ const listAllTeamMembers = async (req, res) => {
     const status = req.query.status || "";
 
     const searchQuery = {
-      ...(search && { name: { $regex: search, $options: "i" } }),
+      ...(search && {
+        $or: [
+          { fullname: { $regex: search, $options: "i" } },
+          { position: { $regex: search, $options: "i" } },
+        ],
+      }),
       ...(status && { status })
     };
 

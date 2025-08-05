@@ -1,76 +1,43 @@
 const CV = require("../models/cv_model");
+const Vacancy = require("../../jobs_available/models/job_model")
 
 const listAllCVs = async (req, res) => {
   try {
-    const {
-      page = 1,
-      limit = 10,
-      search = "",
-      job_type,
-      location,
-      sortBy = "createdAt",
-      order = "desc",
-    } = req.query;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const sortOrder = req.query.sort === "asc" ? 1 : -1; 
 
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-    const sortOption = { [sortBy]: order === "asc" ? 1 : -1 };
+    const search = req.query.search || "";
+    const status = req.query.status || "";
 
-    const pipeline = [
-      {
-        $lookup: {
-          from: "vacancies",
-          localField: "vacancy",
-          foreignField: "_id",
-          as: "vacancy",
-        },
-      },
-      { $unwind: "$vacancy" },
-    ];
+    const searchQuery = {
+      ...(search && { fullname: { $regex: search, $options: "i" } }),
+      ...(status && { status })
+    };
 
-    const match = {};
+    const CVs = await CV.find(searchQuery)
+      .sort({ createdAt: sortOrder }) 
+      .skip(skip)
+      .limit(limit)
+      .lean();
 
-    if (search) {
-      match["vacancy.title"] = { $regex: search, $options: "i" };
-    }
-
-    if (job_type) {
-    match["vacancy.job_type"] = { $regex: `^${job_type}$`, $options: "i" };
-    }
-
-    if (location) {
-      match["vacancy.location"] = { $regex: location, $options: "i" };
-    }
-
-    if (Object.keys(match).length > 0) {
-      pipeline.push({ $match: match });
-    }
-
-    pipeline.push(
-      { $sort: sortOption },
-      { $skip: skip },
-      { $limit: parseInt(limit) }
-    );
-
-    const countPipeline = [...pipeline.filter(p => !p.$skip && !p.$limit)];
-    countPipeline.push({ $count: "total" });
-
-    const [cvs, countResult] = await Promise.all([
-      CV.aggregate(pipeline),
-      CV.aggregate(countPipeline),
-    ]);
-
-    const total = countResult[0]?.total || 0;
+    const totalCVs = await CV.countDocuments(searchQuery)
 
     return res.status(200).json({
-      total,
-      page: parseInt(page),
-      limit: parseInt(limit),
-      totalPages: Math.ceil(total / limit),
-      cvs,
+      message: "CVs fetched successfully",
+      CVs,
+      pagination: {
+        currentPage: page,
+        totalCVs,
+        totalPages: Math.ceil(totalCVs / limit),
+        CVsPerPage: limit,
+      },
     });
-  } catch (err) {
-    console.error("List All CVs Error:", err);
-    return res.status(500).json({ message: "Server error while fetching CVs" });
+
+  } catch (error) {
+    console.error("List CVs Error:", error);
+    return res.status(500).json({ message: "Failed to fetch CVs" });
   }
 };
 

@@ -3,7 +3,7 @@ const CV = require("../models/cv_model");
 const getSingleCV = async (req, res) => {
   try {
     const { id } = req.params;
-    const cv = await CV.findById(id).populate("vacancy", "title location job_type");
+    const cv = await CV.findById(id);
 
     if (!cv) {
       return res.status(404).json({ message: "CV not found" });

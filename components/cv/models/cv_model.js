@@ -7,10 +7,22 @@ const cvSchema = new mongoose.Schema(
       ref: "Vacancy",
       required: true,
     },
+    position: {
+      type: String,
+    },
+    fullname: {
+      type: String,
+    },
+    email: {
+      type: String,
+    },
     cv_url: {
       type: String,
-      required: [true, "CV file URL is required"],
-      trim: true,
+    },
+    status: {
+      type: String,
+      enum: ["pending", "approved"],
+      default: "pending",
     },
   },
   { timestamps: true }
