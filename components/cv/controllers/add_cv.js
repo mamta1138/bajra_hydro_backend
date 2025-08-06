@@ -35,12 +35,12 @@ const addCV = async (req, res) => {
     await newCV.save();
 
     return res.status(201).json({
-      message: "CV uploaded successfully",
+      message: "Application Submitted Successfully",
       cv: newCV,
     });
   } catch (err) {
     console.error("Add CV Error:", err);
-    return res.status(500).json({ message: "Server error while uploading CV" });
+    return res.status(500).json({ message: "Server error while submitting application" });
   }
 };
 
