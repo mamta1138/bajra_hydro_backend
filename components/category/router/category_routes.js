@@ -14,20 +14,10 @@ router.post("/", verifyToken, checkRole("admin", "editor"), createCategory);
 
 router.get("/", listAllCategories);
 
-router.get(
-  "/:id",
-  verifyToken,
-  checkRole("admin", "editor"),
-  getSingleCategory
-);
+router.get("/:id", verifyToken, checkRole("admin", "editor"), getSingleCategory);
 
 router.put("/:id", verifyToken, checkRole("admin", "editor"), updateCategory);
 
-router.delete(
-  "/:id",
-  verifyToken,
-  checkRole("admin", "editor"),
-  deleteCategory
-);
+router.delete("/:id", verifyToken, checkRole("admin", "editor"), deleteCategory);
 
 module.exports = router;

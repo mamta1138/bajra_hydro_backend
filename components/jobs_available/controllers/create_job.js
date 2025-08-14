@@ -8,6 +8,10 @@ const createJob = async (req, res) => {
     if (error) {
       return res.status(400).json({ message: error.details[0].message });
     }
+    const existingJob = await Job.findOne({ title: value.title.trim() });
+    if (existingJob) {
+      return res.status(409).json({ message: "Job title already exists. Use another title." });
+    }
 
     const slug = slugify(value.title, { lower: true });
 

@@ -15,7 +15,17 @@ const updateJob = async (req, res) => {
       return res.status(404).json({ message: "Job not found" });
     }
 
-    job.set({ ...value });
+    const existingJob = await Job.findOne({ title: value.title.trim(), _id: { $ne: id } });
+    if (existingJob) {
+      return res.status(409).json({ message: "Another job with this title already exists" });
+    }
+
+    const updatedSlug = slugify(value.title, { lower: true });
+
+    job.set({
+      ...value,
+      slug: updatedSlug,
+    });
 
     await job.save();
 
@@ -24,6 +34,10 @@ const updateJob = async (req, res) => {
       job,
     });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({ message: "Duplicate title or slug" });
+    }
+
     console.error("Update Job Error:", error);
     return res.status(500).json({ message: "Error updating job" });
   }

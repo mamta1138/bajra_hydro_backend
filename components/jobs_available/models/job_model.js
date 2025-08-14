@@ -8,6 +8,7 @@ const vacancySchema = new Schema(
       type: String,
       required: true,
       trim: true,
+      unique: true
     },
     slug: {
       type: String,
@@ -15,7 +16,7 @@ const vacancySchema = new Schema(
       unique: true,
       trim: true,
       lowercase: true,
-      index: true,
+      index: true
     },
     category: {
       type: mongoose.Schema.Types.ObjectId,
